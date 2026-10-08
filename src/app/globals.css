@@ -1,0 +1,142 @@
+@import url("https://fonts.googleapis.com/css2?family=Staatliches&display=swap");
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-VF.woff2") format("woff2");
+  font-weight: 100 900; /* supports thin to black */
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-satoshi: Satoshi, sans-serif;
+  --font-staatliches: Staatliches, serif;
+
+  --color-background: #0a0a0a;
+  --color-foreground: var(--foreground);
+  --color-cream: var(--cream);
+  --color-dark-green: var(--dark-green);
+  --color-light-green: var(--light-green);
+  --color-celadon: var(--celadon);
+  --color-mint: var(--mint);
+
+  --background-image-fiu: url("/fiu.gif");
+
+  --breakpoint-xs: 400px;
+  --breakpoint-3xl: 1680px;
+  --breakpoint-4xl: 2200px;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  p {
+    font-family: "Satoshi", sans-serif;
+    color: var(--gray-text-color);
+  }
+
+  h2,
+  h3 {
+    font-family: "Satoshi", sans-serif;
+    color: var(--green);
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  :root {
+    --default-text-color: #000000;
+    --gray-text-color: #4a5565;
+    --secondary-text-color: #ededed;
+    --background: #f5f5f5;
+    --foreground: #ededed;
+    --cream: #d6cab0;
+    --dark-green: #39513b;
+    --light-green: #737f60;
+    --celadon: #b6cca1;
+    --mint: #d2eee9;
+  }
+
+  body {
+    background: var(--background);
+    font-family: Arial, Helvetica, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  input,
+  textarea,
+  select {
+    border: 2px solid var(--light-green);
+    background-color: var(--background);
+    color: var(--default-text-color);
+    outline: none;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+  }
+}
+
+@utility bg-dots {
+  background-image: url("/dots.svg");
+  background-repeat: repeat;
+  background-size: 100px 100px;
+}
+
+@utility boop {
+  @apply border-2 border-red-500;
+}
+
+@utility input {
+  @apply transition-[box-shadow,transform] placeholder:text-gray-500 focus:scale-[1.005] focus:shadow-[0_0_0_3px_rgba(57,81,59,0.2)];
+}
+
+@utility category-btn {
+  @apply hover:bg-light-green inline-flex cursor-pointer items-center gap-2 rounded-xl bg-white px-3 py-3 text-left text-[#57595A] transition-colors hover:text-white;
+}
+
+@utility read-more-btn {
+  @apply border-dark-green hover:bg-light-green hover:border-dark-green bg-dark-green/70 flex items-center justify-center rounded-xl border-2 px-2 py-1.5 font-semibold text-white transition-all;
+}
+
+@utility flexCenter {
+  @apply flex items-center justify-center;
+}
+
+@utility primary-btn {
+  @apply border-light-green bg-dark-green font-staatliches hover:bg-light-green rounded-xl border-2 px-6 py-1 text-2xl/6 text-white transition-all;
+}
+
+@utility secondary-btn {
+  @apply bg-cream font-staatliches text-dark-green rounded-2xl border-2 px-6 py-3 text-2xl/6 hover:border-2 hover:border-white;
+}
+
+@utility login-btn {
+  @apply border-dark-green bg-dark-green font-staatliches hover:bg-light-green rounded-sm border-4 px-6 py-2.5 text-white transition-all;
+}
+
+@utility signup-btn {
+  @apply border-cream bg-cream font-staatliches text-dark-green hover:bg-light-green rounded-sm border-4 px-6 py-2.5 transition-all hover:text-white;
+}
+
+@utility tertiary-btn {
+  @apply bg-cream font-satoshi rounded-lg px-4 py-2 font-bold text-black;
+}
+
+@utility load-more-btn {
+  @apply border-dark-green bg-dark-green font-staatliches hover:bg-light-green rounded-sm border-4 px-6 py-2.5 text-white transition-all;
+}
+
+@utility max-container {
+  @apply 3xl:max-w-[2000px] mx-auto max-w-[1440px] xl:max-w-[1600px] 2xl:max-w-[1800px];
+}
+
+@utility padding-container {
+  @apply 3xl:px-48 px-6 md:px-12 lg:px-20 xl:px-28 2xl:px-36;
+}
