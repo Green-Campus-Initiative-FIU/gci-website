@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/site/SiteImage";
 import Link from "next/link";
 import { categoryLabel, normalizePost } from "@/utils/blog";
 

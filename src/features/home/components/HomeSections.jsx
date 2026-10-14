@@ -2,52 +2,27 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "@/components/site/icons";
 import PostCard from "@/features/blog/components/PostCard";
+import Feature from "@/components/site/Feature";
 
 // Server-rendered home page sections (the scroll-driven ones live in their own client files).
 
 export function WhoWeAre({ c }) {
   return (
-    <section className="feature on-dark" id="about">
-      <div className="wrap">
-        <div className="copy">
-          <span className="label" data-reveal>
-            {c["home.about.label"]}
-          </span>
-          <h2 data-reveal style={{ "--d": ".08s" }}>
-            <Emphasize text={c["home.about.title"]} word="changemakers" />
-          </h2>
-          <p data-reveal style={{ "--d": ".16s" }}>
-            {c["home.about.text"]}
-          </p>
-          <div data-reveal style={{ "--d": ".24s" }}>
-            <Link className="btn btn-light" href="/about">
-              More about GCI
-            </Link>
-          </div>
-        </div>
-        <div className="media" data-reveal="right">
-          <figure className="photo tilt-r" data-speed="-0.04">
-            <div className="ph">
-              <Image src="/outdoor.jpg" alt="Tree-lined garden walkway on campus" fill sizes="(max-width: 820px) 100vw, 50vw" style={{ objectFit: "cover" }} />
-            </div>
-            <figcaption>{c["home.about.caption"]}</figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Colors one word of a headline mint, if the (editable) headline still contains it.
-export function Emphasize({ text, word }) {
-  const i = word ? text.toLowerCase().lastIndexOf(word.toLowerCase()) : -1;
-  if (i < 0) return text;
-  return (
-    <>
-      {text.slice(0, i)}
-      <em>{text.slice(i, i + word.length)}</em>
-      {text.slice(i + word.length)}
-    </>
+    <Feature
+      id="about"
+      dark
+      label={c["home.about.label"]}
+      title={c["home.about.title"]}
+      emphasize="changemakers"
+      text={c["home.about.text"]}
+      image="/outdoor.jpg"
+      alt="Tree-lined garden walkway on campus"
+      caption={c["home.about.caption"]}
+    >
+      <Link className="btn btn-light" href="/about">
+        More about GCI
+      </Link>
+    </Feature>
   );
 }
 

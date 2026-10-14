@@ -2,27 +2,8 @@
 
 const nextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "example.com",
-        port: "",
-        pathname: "/**",
-      },
-      // Add other domains you might need
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "via.placeholder.com",
-        port: "",
-        pathname: "/**",
-      },
-    ],
+    // Photos uploaded through the site are stored on Cloudinary.
+    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" }],
   },
 };
 

@@ -1,30 +1,41 @@
-import CommiteeCard from "../../features/committees/components/CommitteeCard";
-import { committeeData } from "../../features/committees/constants/committeeData.js"; // Import the data
+import Link from "next/link";
+import JoinBand from "@/components/site/JoinBand";
+import { CommitteeIcon } from "@/components/site/icons";
+import { getSiteContent } from "@/content/site";
+import { getCommittees } from "@/services/committees.server";
 
-export default function Committees() {
+export const metadata = { title: "Committees | Green Campus Initiative" };
+
+export default async function CommitteesPage() {
+  const [c, committees] = await Promise.all([getSiteContent(), getCommittees()]);
+
   return (
     <>
-      <section className="max-container padding-container mt-16 pb-20">
-        <CommitteesHeader />
-        <div className="flex w-full flex-wrap">
-          {committeeData.map((committee) => (
-            <CommiteeCard key={committee.id} committee={committee} />
-          ))}
+      <section className="block">
+        <div className="wrap">
+          <div className="head">
+            <h1 className="page-title" data-reveal>
+              {c["committees.title"]}
+            </h1>
+            <p data-reveal style={{ "--d": ".1s" }}>
+              {c["committees.text"]}
+            </p>
+          </div>
+          <div className="comgrid">
+            {committees.map((com, i) => (
+              <Link key={com.id} className="com" href={`/committees/${com.id}`} data-reveal style={{ "--d": `${(i % 3) * 0.1}s` }}>
+                <span className="icon">
+                  <CommitteeIcon name={com.icon} />
+                </span>
+                <h3>{com.name}</h3>
+                <p>{com.description}</p>
+                <span className="readmore">View committee →</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
+      <JoinBand />
     </>
-  );
-}
-
-export function CommitteesHeader() {
-  return (
-    <div className="pb-10">
-      <h2 className="font-staatliches text-dark-green text-center text-4xl font-black md:text-5xl">
-        Our Committees
-      </h2>
-      <p className="font-satoshi mx-auto mt-2 max-w-lg text-balance text-center text-xl font-medium tracking-tight text-gray-950 sm:text-base md:text-xl">
-        Explore some of the committees that make up the Green Campus Initiative
-      </p>
-    </div>
   );
 }

@@ -24,11 +24,6 @@ const data = [
     answer:
       "Zero waste living aims to minimize waste by reusing, recycling, and composting as much as possible. The goal is to reduce the amount of waste that ends up in landfills and encourage a more sustainable lifestyle.",
   },
-  {
-    question: "What is zero waste living?",
-    answer:
-      "Zero waste living aims to minimize waste by reusing, recycling, and composting as much as possible. The goal is to reduce the amount of waste that ends up in landfills and encourage a more sustainable lifestyle.",
-  },
 ];
 
 export default data;

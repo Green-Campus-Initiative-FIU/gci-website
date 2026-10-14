@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { admin, db, isFirebaseConfigured } from "@/lib/firebase/admin";
 
@@ -39,9 +38,8 @@ export async function signup(formData) {
     console.error("Error creating user:", e);
     return { error: e.message };
   }
-  // After a user is created, they need to be logged in to create a session
-  // Add success message if needed
-  redirect("/login");
+  // After a user is created, they need to log in to create a session
+  return { success: true };
 }
 
 export async function createSession(idToken) {

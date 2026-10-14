@@ -70,3 +70,10 @@ export const SAMPLE_EVENTS = [
     description: "Take the pledge, grab a reusable bottle, and learn where the refill stations are.",
   },
 ];
+
+export const SAMPLE_TEAM = [
+  { name: "Officer name", role: "President", bio: "One or two sentences about this officer." },
+  { name: "Officer name", role: "Vice President", bio: "One or two sentences about this officer." },
+  { name: "Officer name", role: "Treasurer", bio: "One or two sentences about this officer." },
+  { name: "Officer name", role: "Secretary", bio: "One or two sentences about this officer." },
+];

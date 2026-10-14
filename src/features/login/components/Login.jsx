@@ -1,61 +1,50 @@
-import React from "react";
+import Image from "next/image";
 
-export default function Login({ error, handleLogin, handleSignup }) {
+export default function Login({ mode, setMode, error, notice, busy, onSubmit }) {
+  const signingUp = mode === "signup";
   return (
-    <section className="max-container padding-container">
-      <form className="bg-light-green mx-auto my-16 flex w-full max-w-xl flex-col space-y-2.5 rounded-lg p-8 shadow-md">
-        <h1 className="font-staatliches text-4xl text-white">
-          Access Your Account
-        </h1>
-        {error && (
-          <p className="rounded bg-red-100 p-2 text-red-700">{error}</p>
-        )}
+    <div className="wrap auth">
+      <div className="auth-card">
+        <Image className="logo" src="/gci-transparent.webp" alt="" width={84} height={84} />
+        <h1>{signingUp ? "Create account" : "Officer login"}</h1>
 
-        <label
-          htmlFor="email"
-          className="font-satoshi px-0.5 font-medium text-white"
-        >
-          Email:
-        </label>
-        <input
-          className="input"
-          id="email"
-          name="email"
-          type="email"
-          placeholder="you@fiu.edu"
-          required
-        />
-
-        <label
-          htmlFor="password"
-          className="font-satoshi px-0.5 font-medium text-white"
-        >
-          Password:
-        </label>
-        <input
-          className="input"
-          id="password"
-          name="password"
-          type="password"
-          placeholder="••••••••"
-          required
-        />
-
-        <div className="h-18 mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <button
-            className="bg-celadon hover:bg-dark-green text-dark-green font-staatliches m-0.5 rounded-sm py-2 uppercase hover:text-white"
-            formAction={handleLogin}
-          >
-            Log In
+        <div className="tabs" role="tablist" aria-label="Log in or sign up">
+          <button type="button" role="tab" aria-selected={!signingUp} onClick={() => setMode("login")}>
+            Log in
           </button>
-          <button
-            className="bg-cream hover:bg-dark-green text-dark-green font-staatliches m-0.5 rounded-sm uppercase hover:text-white"
-            formAction={handleSignup}
-          >
-            Sign Up
+          <button type="button" role="tab" aria-selected={signingUp} onClick={() => setMode("signup")}>
+            Sign up
           </button>
         </div>
-      </form>
-    </section>
+
+        <form className="form" action={onSubmit}>
+          {notice && <p className="ok" role="status">{notice}</p>}
+          <label htmlFor="email">
+            FIU email
+            <input id="email" name="email" type="email" autoComplete="email" placeholder="you@fiu.edu" required />
+          </label>
+          <label htmlFor="password">
+            Password
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete={signingUp ? "new-password" : "current-password"}
+              placeholder={signingUp ? "At least 6 characters" : "••••••••"}
+              minLength={signingUp ? 6 : undefined}
+              required
+            />
+          </label>
+          {error && (
+            <p className="err" role="alert">
+              {error}
+            </p>
+          )}
+          <button className="btn btn-forest" type="submit" disabled={busy}>
+            {busy ? "One moment…" : signingUp ? "Create account" : "Log in"}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
