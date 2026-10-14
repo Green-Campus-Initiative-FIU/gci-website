@@ -1,96 +1,61 @@
-import { motion } from "framer-motion";
-import ScrollIndicator from "./ScrollIndicator";
-import HeroButtons from "./HeroButtons";
+import Image from "next/image";
+import { JOIN_URL } from "@/constants";
+import LearnMoreButton from "./LearnMoreButton";
 
-export default function Hero() {
+export default function Hero({ c }) {
   return (
-    <div className="bg-light-green relative flex min-h-[70dvh] w-full flex-col justify-center overflow-hidden">
-      {/* Background Overlay & Image */}
-      <div className="absolute top-0 h-full w-full bg-[url('/turtle.jpg')] bg-cover bg-center" />
-      <div className="bg-linear-to-b absolute top-0 z-10 h-full w-full from-black to-transparent opacity-70" />
-      <div className="bg-dots absolute inset-0 z-[11] opacity-20" />
+    <section className="hero">
+      <div className="wrap">
+        <div>
+          <span className="weare">{c["home.hero.weare"]}</span>
+          <h1>
+            <span className="w" style={{ "--i": 0 }}>
+              Green
+            </span>{" "}
+            <span className="w g" style={{ "--i": 1 }}>
+              Campus
+              <svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M2 14 C 40 4, 80 18, 120 9 S 180 6, 198 12" stroke="#E3A72F" strokeWidth="6" fill="none" strokeLinecap="round" />
+              </svg>
+            </span>
+            <br />
+            <span className="w" style={{ "--i": 2 }}>
+              Initiative
+              <span className="spark" aria-hidden="true">
+                ✦
+              </span>
+            </span>
+          </h1>
+          <p className="lede">{c["home.hero.lede"]}</p>
+          <div className="ctas">
+            <LearnMoreButton />
+            <a className="btn btn-gold" href={JOIN_URL} target="_blank" rel="noopener">
+              Join GCI
+            </a>
+          </div>
+        </div>
 
-      {/* Hero Content */}
-      <div className="max-container z-20 flex w-full">
-        <div className="padding-container mt-16 flex flex-col self-start p-4 lg:mt-0">
-          <HeroChip />
-          <HeroTitle />
-          <HeroDescription />
-          <HeroButtons />
+        <div className="collage" aria-label="Photo collage">
+          <div className="sun" data-speed="-0.06" aria-hidden="true" />
+          <Sticker n={1} src="/turtle.jpg" alt="Two turtles sunning on a rock beside a pond" caption={c["home.hero.caption1"]} speed="0.03" priority />
+          <Sticker n={2} src="/outdoor.jpg" alt="Tree-lined garden walkway with shaded benches" caption={c["home.hero.caption2"]} speed="-0.04" />
+          <Sticker n={3} src="/pantherflags.jpg" alt="Roary the FIU panther mascot under hanging flags" caption={c["home.hero.caption3"]} speed="0.05" />
+          <div className="logo-badge" data-spin aria-hidden="true">
+            <Image src="/gci-transparent.webp" alt="" fill sizes="180px" />
+          </div>
         </div>
       </div>
-      <ScrollIndicator />
-    </div>
+    </section>
   );
 }
 
-function HeroChip() {
+function Sticker({ n, src, alt, caption, speed, priority }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="mb-2 inline-block w-fit"
-    >
-      <div className="bg-dark-green/40 border-cream/30 inline-block rounded-full border-2 px-4 py-1.5 backdrop-blur-sm">
-        <span className="font-satoshi text-sm font-semibold text-white">
-          An @fiuhonors Organization
-        </span>
+    <figure className={`sticker s${n}`} style={{ "--i": n - 1 }} data-speed={speed}>
+      <div className="ph">
+        <Image src={src} alt={alt} fill sizes="(max-width: 860px) 60vw, 30vw" style={{ objectFit: "cover" }} priority={priority} />
       </div>
-    </motion.div>
-  );
-}
-
-function HeroTitle() {
-  return (
-    <>
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="font-staatliches text-celadon/90 w-fit text-xl"
-      >
-        we are
-      </motion.p>
-
-      <motion.h1
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="font-staatliches 3xl:text-8xl relative w-fit text-5xl font-extrabold uppercase tracking-wide sm:text-6xl"
-      >
-        <span className="block text-white drop-shadow-lg">
-          <span className="text-celadon">Green</span> Campus
-        </span>
-        <span className="text-cream block drop-shadow-lg">Initiative</span>
-        <motion.span
-          animate={{
-            rotate: [0, 15, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="text-cream absolute -right-4 -top-4 text-3xl md:right-[-20px] md:top-[-20px]"
-        >
-          ✦
-        </motion.span>
-      </motion.h1>
-    </>
-  );
-}
-
-function HeroDescription() {
-  return (
-    <motion.p
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
-      className="font-satoshi mb-6 max-w-md break-normal text-base font-medium leading-relaxed text-white lg:max-w-lg"
-    >
-      Cultivating a culture of sustainability at FIU and beyond
-    </motion.p>
+      <figcaption>{caption}</figcaption>
+    </figure>
   );
 }

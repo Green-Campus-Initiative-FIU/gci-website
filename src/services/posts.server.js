@@ -1,4 +1,5 @@
 import { db } from "@/lib/firebase/admin";
+import { SAMPLE_POSTS } from "@/content/samples";
 
 // ** Create Post **
 export async function createPost(postData) {
@@ -133,4 +134,18 @@ export async function togglePublishStatusById(id) {
     updatedAt: new Date(),
   });
   return { success: true, published: !data.published };
+}
+
+// ** Public pages: published posts, or sample posts while Firebase isn't connected **
+export async function getPublicPosts(limit = 20) {
+  if (!db) return SAMPLE_POSTS.slice(0, limit).map((p) => ({ ...p, isSample: true }));
+  return getAllPublishedPosts(limit);
+}
+
+export async function getPublicPost(id) {
+  if (!db) {
+    const sample = SAMPLE_POSTS.find((p) => p.id === id);
+    return sample ? { ...sample, isSample: true } : null;
+  }
+  return getPublishedPostById(id);
 }

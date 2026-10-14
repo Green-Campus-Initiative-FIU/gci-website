@@ -1,4 +1,10 @@
 import { formatTextDate, toDate } from "./date";
+import { BLOG_CATEGORIES } from "@/features/dashboard/blog/constants/categories";
+
+// ** Human label for a category value, e.g. "tips-guides" -> "Tips & Guides" **
+export function categoryLabel(value) {
+  return BLOG_CATEGORIES.find((c) => c.value === value)?.label ?? "Other";
+}
 
 // ** Normalizes blog post data for client-side use **
 export function normalizePost(post) {
@@ -13,6 +19,8 @@ export function normalizePost(post) {
   const imageUrl = post.featuredImageUrl || "/placeholder.jpg";
   const category = post.category || "uncategorized";
   return {
+    featured: Boolean(post.featured),
+    isSample: Boolean(post.isSample),
     id: post.id,
     title: post.title,
     description: post.description,
