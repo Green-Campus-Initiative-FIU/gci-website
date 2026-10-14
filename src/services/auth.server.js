@@ -1,8 +1,9 @@
 import { cookies } from "next/headers";
-import { admin, db } from "@/lib/firebase/admin";
+import { admin, db, isFirebaseConfigured } from "@/lib/firebase/admin";
 
 // ** Get Current User **
 export async function getCurrentUser() {
+  if (!isFirebaseConfigured) return null;
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session")?.value;
   if (!sessionCookie) return null;

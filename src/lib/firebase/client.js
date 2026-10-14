@@ -7,7 +7,8 @@ const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+// Without the public config (see .env.example) logins are disabled instead of crashing the page.
+const app = firebaseConfig.apiKey ? initializeApp(firebaseConfig) : null;
+const auth = app ? getAuth(app) : null;
 
 export { auth, app };

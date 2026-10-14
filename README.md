@@ -40,9 +40,22 @@ Built with [Next.js](https://nextjs.org) (App Router), React, Tailwind CSS, Fire
 2. **Authentication** > Sign-in method > enable **Email/Password**.
 3. **Firestore Database** > create database. Collections are created automatically on first write.
 4. **Rules**: paste the contents of `firestore.rules` into Firestore > Rules (or run `firebase deploy --only firestore:rules`). The rules deny all direct browser access because all database access goes through the server.
-5. **Service account**: generate a private key, convert the JSON to a single line, and put it in `FIREBASE_SERVICE_ACCOUNT_JSON`.
-   **Never commit the key file.** It gives full admin access to the project.
-6. **First admin**: sign up on the site, then in Firestore set `role: "admin"` on your document in the `users` collection.
+5. **Service account**: Project settings > Service accounts > **Generate new private key**, then load it into `.env.local` (the script never prints the secret):
+
+   ```bash
+   npm run set-firebase-key -- ~/Downloads/<the-downloaded-key>.json
+   ```
+
+   Then delete the downloaded file. **Never commit or email the key file.** It gives full admin access to the project.
+6. **First admin**: sign up on the site (`/login` > Sign up), then run:
+
+   ```bash
+   npm run make-admin -- you@fiu.edu
+   ```
+
+   (`--remove` takes admin access away again.)
+
+The site also runs **without** any keys: pages show sample content and logins are disabled. That's handy for working on the design.
 
 ## Editing content
 

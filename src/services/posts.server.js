@@ -18,6 +18,7 @@ export async function createPost(postData) {
 
 // ** Read User Posts by UID **
 export async function getUserPostsByUid(uid, limit = 20) {
+  if (!db) return [];
   const snap = await db
     .collection("posts")
     .where("authorId", "==", uid)
@@ -29,6 +30,7 @@ export async function getUserPostsByUid(uid, limit = 20) {
 
 // ** Read Single Post by ID **
 export async function getPostById(id) {
+  if (!db) return null;
   const snap = await db.collection("posts").doc(id).get();
   if (!snap.exists) return null;
   return { id: snap.id, ...snap.data() };
@@ -43,6 +45,7 @@ export async function getPublishedPostById(id) {
 
 // ** Read ALL posts (sorted by createdAt)
 export async function getAllPosts(limit = 20) {
+  if (!db) return [];
   const snap = await db
     .collection("posts")
     .orderBy("createdAt", "desc")
@@ -53,6 +56,7 @@ export async function getAllPosts(limit = 20) {
 
 // ** Read ALL published posts (sorted by createdAt)
 export async function getAllPublishedPosts(limit = 20) {
+  if (!db) return [];
   const snap = await db
     .collection("posts")
     .where("published", "==", true)
@@ -69,6 +73,7 @@ export async function queryPublishedPosts({
   category,
   tags,
 } = {}) {
+  if (!db) return { items: [], nextCursor: null };
   let query = db.collection("posts").where("published", "==", true);
 
   if (category) {

@@ -1,25 +1,25 @@
 import admin from "firebase-admin";
 
-// 1. Get the JSON string from the environment variable.
+// The service account comes from .env.local (see README > "Setting up a new Firebase project").
+// Without it the site still runs: pages fall back to sample content and logins are disabled.
 const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 
-// 2. Add a check to make sure the variable exists.
-if (!serviceAccountJson) {
-  throw new Error(
-    "The FIREBASE_SERVICE_ACCOUNT_JSON environment variable is not set. Please check your .env.local file and restart the server."
+export const isFirebaseConfigured = Boolean(serviceAccountJson);
+
+let db = null;
+
+if (isFirebaseConfigured) {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(JSON.parse(serviceAccountJson)),
+    });
+  }
+  db = admin.firestore();
+} else if (!globalThis.__gciFirebaseWarned) {
+  globalThis.__gciFirebaseWarned = true;
+  console.warn(
+    "⚠️  FIREBASE_SERVICE_ACCOUNT_JSON is not set. Running without Firebase: sample content is shown and logins are disabled."
   );
 }
 
-// 3. THE FIX: Parse the JSON string ONCE to create a JavaScript object.
-const serviceAccount = JSON.parse(serviceAccountJson);
-
-// 4. Initialize the app with the parsed OBJECT.
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  console.log("✅ Firebase Admin SDK initialized successfully.");
-}
-
-const db = admin.firestore();
 export { db, admin };

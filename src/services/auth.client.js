@@ -3,6 +3,11 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 
 export async function loginWithEmail(email, password) {
+  if (!auth) {
+    throw new Error(
+      "Logins aren't available yet: the site isn't connected to Firebase."
+    );
+  }
   try {
     const userCredential = await signInWithEmailAndPassword(
       auth,
@@ -26,7 +31,7 @@ export async function loginWithEmail(email, password) {
 export async function logoutClient(options = {}) {
   const { redirectTo = "/login" } = options;
   try {
-    await signOut(auth);
+    if (auth) await signOut(auth);
     const res = await fetch("/api/auth/signout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "set-firebase-key": "node scripts/set-firebase-key.mjs",
+    "make-admin": "node --env-file=.env.local scripts/make-admin.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",

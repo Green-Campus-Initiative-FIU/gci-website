@@ -3,11 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { admin, db } from "@/lib/firebase/admin";
+import { admin, db, isFirebaseConfigured } from "@/lib/firebase/admin";
+
+const NOT_CONNECTED =
+  "Logins aren't available yet: the site isn't connected to Firebase.";
 
 // Create new user in Firebase Auth
 
 export async function signup(formData) {
+  if (!isFirebaseConfigured) return { error: NOT_CONNECTED };
   const email = formData.get("email");
   const password = formData.get("password");
 
@@ -41,6 +45,7 @@ export async function signup(formData) {
 }
 
 export async function createSession(idToken) {
+  if (!isFirebaseConfigured) return { error: NOT_CONNECTED };
   if (!idToken) {
     return { error: "ID token is required." };
   }
