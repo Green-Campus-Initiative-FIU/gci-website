@@ -1,5 +1,6 @@
 import { db } from "@/lib/firebase/admin";
 import { SAMPLE_POSTS } from "@/content/samples";
+import { toMillis } from "@/utils/date";
 
 // ** Create Post **
 export async function createPost(postData) {
@@ -20,13 +21,12 @@ export async function createPost(postData) {
 // ** Read User Posts by UID **
 export async function getUserPostsByUid(uid, limit = 20) {
   if (!db) return [];
-  const snap = await db
-    .collection("posts")
-    .where("authorId", "==", uid)
-    .orderBy("createdAt", "desc")
-    .limit(limit)
-    .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  // Sorted here instead of in the query so Firestore doesn't need a composite index.
+  const snap = await db.collection("posts").where("authorId", "==", uid).get();
+  return snap.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => toMillis(b.createdAt) - toMillis(a.createdAt))
+    .slice(0, limit);
 }
 
 // ** Read Single Post by ID **
@@ -58,13 +58,17 @@ export async function getAllPosts(limit = 20) {
 // ** Read ALL published posts (sorted by createdAt)
 export async function getAllPublishedPosts(limit = 20) {
   if (!db) return [];
+  // Newest posts first, filtered to published ones here so Firestore doesn't
+  // need a composite index (published + createdAt).
   const snap = await db
     .collection("posts")
-    .where("published", "==", true)
     .orderBy("createdAt", "desc")
-    .limit(limit)
+    .limit(Math.max(limit * 3, 100))
     .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return snap.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .filter((p) => p.published === true)
+    .slice(0, limit);
 }
 
 // ** Query published post with pagination
@@ -139,7 +143,13 @@ export async function togglePublishStatusById(id) {
 // ** Public pages: published posts, or sample posts while Firebase isn't connected **
 export async function getPublicPosts(limit = 20) {
   if (!db) return SAMPLE_POSTS.slice(0, limit).map((p) => ({ ...p, isSample: true }));
-  return getAllPublishedPosts(limit);
+  try {
+    return await getAllPublishedPosts(limit);
+  } catch (e) {
+    // Show the page without posts rather than failing it entirely.
+    console.error("getPublicPosts error:", e);
+    return [];
+  }
 }
 
 export async function getPublicPost(id) {
@@ -147,5 +157,10 @@ export async function getPublicPost(id) {
     const sample = SAMPLE_POSTS.find((p) => p.id === id);
     return sample ? { ...sample, isSample: true } : null;
   }
-  return getPublishedPostById(id);
+  try {
+    return await getPublishedPostById(id);
+  } catch (e) {
+    console.error("getPublicPost error:", e);
+    return null;
+  }
 }
