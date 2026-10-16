@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/firebase/admin";
-import { requireAdmin } from "@/services/auth.server";
+import { requireEditor } from "@/services/auth.server";
 import { uploadImage } from "@/lib/cloudinary.server";
 import { committeeData } from "@/features/committees/constants/committeeData";
 import FAQ_DEFAULTS from "@/features/about/constants/FAQData";
@@ -19,7 +19,7 @@ function schemaFor(collection) {
 
 // ** Create or update one item in a managed list (committees, team, events, faq) **
 export async function saveItemAction(collection, id, prevState, formData) {
-  const { user, error } = await requireAdmin();
+  const { user, error } = await requireEditor();
   if (error) return { error };
   const schema = schemaFor(collection);
   if (!schema) return { error: "Unknown list." };
@@ -45,7 +45,7 @@ export async function saveItemAction(collection, id, prevState, formData) {
 
 // ** Delete one item **
 export async function deleteItemAction(collection, id) {
-  const { error } = await requireAdmin();
+  const { error } = await requireEditor();
   if (error) return { error };
   if (!schemaFor(collection) || !id) return { error: "Unknown item." };
   await db.collection(collection).doc(id).delete();
@@ -55,7 +55,7 @@ export async function deleteItemAction(collection, id) {
 
 // ** Move an item up or down (officers, FAQ) **
 export async function moveItemAction(collection, id, direction) {
-  const { error } = await requireAdmin();
+  const { error } = await requireEditor();
   if (error) return { error };
   const schema = schemaFor(collection);
   if (!schema?.ordered) return { error: "This list can't be reordered." };
@@ -75,7 +75,7 @@ export async function moveItemAction(collection, id, direction) {
 
 // ** Copy the built-in committees / FAQ into Firestore so they become editable **
 export async function importDefaultsAction(collection) {
-  const { user, error } = await requireAdmin();
+  const { user, error } = await requireEditor();
   if (error) return { error };
   const col = db.collection(collection);
   if ((await col.count().get()).data().count > 0) return { error: "This list is already editable." };
@@ -101,7 +101,7 @@ export async function importDefaultsAction(collection) {
 // ** Upload a photo for a list item or a page (Cloudinary) **
 const FOLDERS = new Set(["committees", "team", "site", "events"]);
 export async function uploadSiteImageAction(formData) {
-  const { error } = await requireAdmin();
+  const { error } = await requireEditor();
   if (error) return { error };
   const folder = String(formData.get("folder") || "site");
   if (!FOLDERS.has(folder)) return { error: "Unknown photo folder." };
@@ -115,7 +115,7 @@ export async function uploadSiteImageAction(formData) {
 // ** Save text/photo changes made with "Edit this page" **
 const MAX_TEXT = 2000;
 export async function saveSiteContentAction(changes) {
-  const { user, error } = await requireAdmin();
+  const { user, error } = await requireEditor();
   if (error) return { error };
   if (!changes || typeof changes !== "object") return { error: "Nothing to save." };
 

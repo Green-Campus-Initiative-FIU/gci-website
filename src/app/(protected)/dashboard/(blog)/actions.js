@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/firebase/admin";
 import { createPost, getPostById, updatePostById, togglePublishStatusById, deletePostById } from "@/services/posts.server";
-import { requireAdmin } from "@/services/auth.server";
+import { requireEditor } from "@/services/auth.server";
 import { uploadImage } from "@/lib/cloudinary.server";
 import { parseTags } from "@/utils/tags";
 import { ALLOWED_CATEGORIES } from "@/features/dashboard/blog/constants/categories";
@@ -42,7 +42,7 @@ function refreshBlog(id) {
 
 // ** Create **
 export async function createPostAction(prevState, formData) {
-  const { user, error } = await requireAdmin();
+  const { user, error } = await requireEditor();
   if (error) return { error };
   const form = readPostForm(formData);
   if (form.error) return form;
@@ -63,7 +63,7 @@ export async function createPostAction(prevState, formData) {
 
 // ** Update **
 export async function updatePostByIdAction(id, prevState, formData) {
-  const { error } = await requireAdmin();
+  const { error } = await requireEditor();
   if (error) return { error };
   const post = await getPostById(id);
   if (!post) return { error: "That post no longer exists." };
@@ -82,7 +82,7 @@ export async function updatePostByIdAction(id, prevState, formData) {
 
 // ** Publish / unpublish **
 export async function togglePublishStatusByIdAction(id) {
-  const { error } = await requireAdmin();
+  const { error } = await requireEditor();
   if (error) return { error };
   const res = await togglePublishStatusById(id);
   if (res?.error) return res;
@@ -92,7 +92,7 @@ export async function togglePublishStatusByIdAction(id) {
 
 // ** Delete **
 export async function deletePostByIdAction(id) {
-  const { error } = await requireAdmin();
+  const { error } = await requireEditor();
   if (error) return { error };
   const res = await deletePostById(id);
   if (res?.error) return res;
@@ -102,7 +102,7 @@ export async function deletePostByIdAction(id) {
 
 // ** Upload a cover photo (Cloudinary) **
 export async function uploadFeaturedImageAction(formData) {
-  const { error } = await requireAdmin();
+  const { error } = await requireEditor();
   if (error) return { error };
   return uploadImage(formData.get("file"), {
     folder: "posts",

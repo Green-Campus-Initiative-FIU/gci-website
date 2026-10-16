@@ -1,10 +1,10 @@
 import ItemsManager from "@/features/dashboard/ItemsManager";
 import NoAccess from "@/features/dashboard/NoAccess";
-import { getCurrentUser, isAdmin } from "@/services/auth.server";
+import { canEdit, getCurrentUser } from "@/services/auth.server";
 import { getManagedItems } from "@/content/collections";
 
 export default async function Page() {
-  if (!isAdmin(await getCurrentUser())) return <NoAccess />;
+  if (!canEdit(await getCurrentUser())) return <NoAccess />;
   const items = await getManagedItems("events");
   return (
     <>

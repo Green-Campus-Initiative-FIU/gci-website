@@ -47,13 +47,14 @@ Built with [Next.js](https://nextjs.org) (App Router), React, Tailwind CSS, Fire
    ```
 
    Then delete the downloaded file. **Never commit or email the key file.** It gives full admin access to the project.
-6. **First admin**: sign up on the site (`/login` > Sign up), then run:
+6. **First admin**: accounts are invite-only, so create the very first one by hand in the Firebase Console (**Authentication → Users → Add user**), then run:
 
    ```bash
    npm run make-admin -- you@fiu.edu
    ```
 
-   (`--remove` takes admin access away again.)
+   After that, admins invite everyone else from the site: **Dashboard → People & access** (editors or admins; invitees get an email link to set their password).
+7. **Turn off self sign-up** in Firebase: **Authentication → Settings → User actions →** uncheck **Enable create (sign-up)** (and **Enable deletion**). The site never lets people sign themselves up, and this closes the same door at Firebase.
 
 The site also runs **without** any keys: pages show sample content and logins are disabled. That's handy for working on the design.
 
@@ -67,6 +68,16 @@ Most site content lives in data files:
 - Team: `src/features/about/components/Team.jsx`
 - Nav / footer / social links: `src/constants/index.js`
 - Images: `public/`
+
+## Who can edit
+
+| Access | Can do |
+| --- | --- |
+| **Admin** | Everything, including inviting and removing people (Dashboard → People & access) |
+| **Editor** | Edit text and photos on the site, posts, events, officers, committees, FAQ |
+| **No access** | Can log in, can't change anything |
+
+There's always at least one admin: the site won't let you remove or demote the last one, or change your own access.
 
 ## Access & ownership
 

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import PostEditor from "@/features/dashboard/blog/PostEditor";
 import NoAccess from "@/features/dashboard/NoAccess";
-import { getCurrentUser, isAdmin } from "@/services/auth.server";
+import { canEdit, getCurrentUser } from "@/services/auth.server";
 import { createPostAction } from "../actions";
 
 export default async function CreatePostPage() {
-  if (!isAdmin(await getCurrentUser())) return <NoAccess />;
+  if (!canEdit(await getCurrentUser())) return <NoAccess />;
   return (
     <>
       <Link className="back" href="/dashboard/view-posts">

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "@/components/site/SiteImage";
 import NoAccess from "@/features/dashboard/NoAccess";
 import PostRowActions from "@/features/dashboard/blog/PostRowActions";
-import { getCurrentUser, isAdmin } from "@/services/auth.server";
+import { canEdit, getCurrentUser } from "@/services/auth.server";
 import { getAllPosts } from "@/services/posts.server";
 import { categoryLabel, normalizePost } from "@/utils/blog";
 import { formatTextDate } from "@/utils/date";
@@ -14,7 +14,7 @@ const SAVED = {
 };
 
 export default async function PostsPage({ searchParams }) {
-  if (!isAdmin(await getCurrentUser())) return <NoAccess />;
+  if (!canEdit(await getCurrentUser())) return <NoAccess />;
   const { saved } = await searchParams;
   const posts = await getAllPosts(200);
 

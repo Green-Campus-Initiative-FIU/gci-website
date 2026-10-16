@@ -4,7 +4,7 @@ import { Barlow_Condensed, DM_Mono, Figtree } from "next/font/google";
 import Nav from "@/components/ui/Nav";
 import Footer from "@/components/ui/Footer";
 import Effects from "@/components/site/Effects";
-import { getCurrentUser, isAdmin } from "@/services/auth.server";
+import { canEdit, getCurrentUser } from "@/services/auth.server";
 import EditProvider from "@/components/edit/EditProvider";
 import AdminBar from "@/components/edit/AdminBar";
 import { UserProvider } from "@/context/UserContext";
@@ -30,7 +30,7 @@ export default async function RootLayout({ children }) {
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`} suppressHydrationWarning>
       <body className="flex min-h-dvh flex-col antialiased">
         <UserProvider user={sanitizeUserData(user)}>
-          <EditProvider canEdit={isAdmin(user)}>
+          <EditProvider canEdit={canEdit(user)}>
             <Effects />
             <Nav />
             <main className="relative grow overflow-x-clip">{children}</main>

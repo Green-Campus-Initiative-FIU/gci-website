@@ -1,4 +1,4 @@
-import { getCurrentUser, isAdmin } from "@/services/auth.server";
+import { getCurrentUser, roleLabel } from "@/services/auth.server";
 import AccountForms from "@/features/dashboard/AccountForms";
 
 export default async function SettingsPage() {
@@ -11,7 +11,7 @@ export default async function SettingsPage() {
         name={user.profile?.name ?? ""}
         bio={user.profile?.bio ?? ""}
         avatarUrl={user.profile?.avatarUrl ?? ""}
-        role={isAdmin(user) ? "Admin" : "Member"}
+        role={roleLabel(user)}
       />
     </>
   );

@@ -12,6 +12,7 @@ const ADMIN_LINKS = [
   { href: "/dashboard/team", label: "Officers" },
   { href: "/dashboard/events", label: "Events" },
   { href: "/dashboard/faq", label: "FAQ" },
+  { href: "/dashboard/people", label: "People & access", adminOnly: true },
   { href: "/dashboard/settings", label: "My account" },
 ];
 const MEMBER_LINKS = [
@@ -19,9 +20,9 @@ const MEMBER_LINKS = [
   { href: "/dashboard/settings", label: "My account" },
 ];
 
-export default function DashNav({ admin }) {
+export default function DashNav({ editor, admin }) {
   const pathname = usePathname();
-  const links = admin ? ADMIN_LINKS : MEMBER_LINKS;
+  const links = editor ? ADMIN_LINKS.filter((l) => admin || !l.adminOnly) : MEMBER_LINKS;
   const active = (l) =>
     l.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(l.href) || l.also?.some((p) => pathname.startsWith(p));
 

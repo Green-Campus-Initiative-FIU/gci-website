@@ -29,7 +29,17 @@ export const getCurrentUser = cache(async function getCurrentUser() {
   }
 });
 
+// Access levels. Accounts are invite-only (see dashboard/people):
+//   admin  – everything, including inviting/removing people
+//   editor – edit the website, posts and lists
+//   anything else – can log in but can't change anything
+export const ROLES = {
+  admin: { label: "Admin", description: "Can edit everything and manage who has access" },
+  editor: { label: "Editor", description: "Can edit the website, posts, events, officers, committees and FAQ" },
+};
 export const isAdmin = (user) => user?.profile?.role === "admin";
+export const canEdit = (user) => user?.profile?.role === "admin" || user?.profile?.role === "editor";
+export const roleLabel = (user) => ROLES[user?.profile?.role]?.label ?? "No access";
 
 // ** Guards for server actions ** — return { user } or { error } (never trust a uid from the browser)
 export async function requireUser() {
@@ -37,10 +47,17 @@ export async function requireUser() {
   return user ? { user } : { error: "Your session ended. Please log in again." };
 }
 
+export async function requireEditor() {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Your session ended. Please log in again." };
+  if (!canEdit(user)) return { error: "Your account doesn't have editing access. Ask a GCI admin." };
+  return { user };
+}
+
 export async function requireAdmin() {
   const user = await getCurrentUser();
   if (!user) return { error: "Your session ended. Please log in again." };
-  if (!isAdmin(user)) return { error: "Only admins can do this. Ask an admin to give you access." };
+  if (!isAdmin(user)) return { error: "Only admins can do this." };
   return { user };
 }
 

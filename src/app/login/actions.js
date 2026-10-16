@@ -7,40 +7,7 @@ import { admin, db, isFirebaseConfigured } from "@/lib/firebase/admin";
 const NOT_CONNECTED =
   "Logins aren't available yet: the site isn't connected to Firebase.";
 
-// Create new user in Firebase Auth
-
-export async function signup(formData) {
-  if (!isFirebaseConfigured) return { error: NOT_CONNECTED };
-  const email = formData.get("email");
-  const password = formData.get("password");
-
-  if (!email || !password) {
-    return { error: "Email and password are required" };
-  }
-
-  try {
-    const userRecord = await admin.auth().createUser({
-      email,
-      password,
-      emailVerified: false,
-    });
-
-    await db.collection("users").doc(userRecord.uid).set({
-      email: userRecord.email,
-      role: "viewer",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-  } catch (e) {
-    if (e.code === "auth/email-already-exists") {
-      return { error: "Email already exists" };
-    }
-    console.error("Error creating user:", e);
-    return { error: e.message };
-  }
-  // After a user is created, they need to log in to create a session
-  return { success: true };
-}
+// Accounts are invite-only: admins create them from Dashboard → People & access.
 
 export async function createSession(idToken) {
   if (!isFirebaseConfigured) return { error: NOT_CONNECTED };

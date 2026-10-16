@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PostEditor from "@/features/dashboard/blog/PostEditor";
 import NoAccess from "@/features/dashboard/NoAccess";
-import { getCurrentUser, isAdmin } from "@/services/auth.server";
+import { canEdit, getCurrentUser } from "@/services/auth.server";
 import { getPostById } from "@/services/posts.server";
 import { updatePostByIdAction } from "../../actions";
 
 export default async function EditPostPage({ params }) {
-  if (!isAdmin(await getCurrentUser())) return <NoAccess />;
+  if (!canEdit(await getCurrentUser())) return <NoAccess />;
   const { id } = await params;
   const post = await getPostById(id);
   if (!post) notFound();

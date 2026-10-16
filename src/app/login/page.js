@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "@/lib/firebase/client";
 import { loginWithEmail } from "@/services/auth.client";
-import { signup, createSession } from "./actions";
+import { createSession } from "./actions";
 import Login from "@/features/login/components/Login";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState("login"); // "login" | "reset"
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -31,17 +33,18 @@ export default function LoginPage() {
     setBusy(false);
   };
 
-  const handleSignup = async (formData) => {
+  const handleReset = async (formData) => {
     setBusy(true);
     setError("");
-    const result = await signup(formData);
-    setBusy(false);
-    if (result?.error) {
-      setError(result.error);
-      return;
+    const email = String(formData.get("email") || "").trim();
+    try {
+      if (auth) await sendPasswordResetEmail(auth, email, { url: `${location.origin}/login` }).catch(() => sendPasswordResetEmail(auth, email));
+    } catch {
+      // Same message either way, so this page can't be used to check who has an account.
     }
+    setBusy(false);
     setMode("login");
-    setNotice("Account created. Log in below. An admin can then give you editing access.");
+    setNotice("If that email has an account, we've sent a link to reset the password. Check your spam folder too.");
   };
 
   return (
@@ -55,7 +58,7 @@ export default function LoginPage() {
       error={error}
       notice={notice}
       busy={busy}
-      onSubmit={mode === "login" ? handleLogin : handleSignup}
+      onSubmit={mode === "login" ? handleLogin : handleReset}
     />
   );
 }
