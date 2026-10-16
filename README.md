@@ -84,7 +84,7 @@ There's always at least one admin: the site won't let you remove or demote the l
 | What | Where | Owned by |
 | --- | --- | --- |
 | Live site | https://gci-website-eta.vercel.app | Vercel project (updates automatically on every push to `main`) |
-| Code | https://github.com/Green-Campus-Inititative-FIU/gci-website (public) | GCI GitHub organization |
+| Code | https://github.com/Green-Campus-Initiative-FIU/gci-website (public) | GCI GitHub organization |
 | Database + logins | Firebase project `gci-website` | Club Google account |
 | Photos | Cloudinary | Club account |
 
