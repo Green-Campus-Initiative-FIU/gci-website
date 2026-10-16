@@ -1,173 +1,111 @@
 "use server";
 
-import {
-  createPost,
-  getPostById,
-  updatePostById,
-  togglePublishStatusById,
-  deletePostById,
-} from "@/services/posts.server";
-import { checkAuth } from "@/utils/auth";
-import { cloudinary } from "@/lib/cloudinary.server";
-import { parseTags } from "@/utils/tags";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { db } from "@/lib/firebase/admin";
+import { createPost, getPostById, updatePostById, togglePublishStatusById, deletePostById } from "@/services/posts.server";
+import { requireAdmin } from "@/services/auth.server";
+import { uploadImage } from "@/lib/cloudinary.server";
+import { parseTags } from "@/utils/tags";
 import { ALLOWED_CATEGORIES } from "@/features/dashboard/blog/constants/categories";
 
-// ** Create Blog Post **
-export async function createPostAction(formData) {
-  const { user, error } = await checkAuth();
-  if (error) return { error };
+// Posting is limited to admins: anyone can create an account, so a plain
+// login isn't enough to publish on the club's site.
 
-  const title = String(formData.get("title") || "").trim();
-  const description = String(formData.get("description") || "").trim();
-
-  if (!title || !description) {
-    return { error: "Title and description are required" };
-  }
-
-  const featuredImageUrl =
-    String(formData.get("featuredImageUrl") || "").trim() || null;
-
+function readPostForm(formData) {
+  const title = String(formData.get("title") || "").trim().slice(0, 140);
+  const description = String(formData.get("description") || "").trim().slice(0, 20000);
   const category = String(formData.get("category") || "").trim();
-  if (!ALLOWED_CATEGORIES.has(category)) {
-    return { error: "Invalid category" };
+  const featuredImageUrl = String(formData.get("featuredImageUrl") || "").trim() || null;
+  const featured = formData.get("featured") === "on";
+  const intent = formData.get("intent"); // "publish" | "draft"
+
+  if (!title) return { error: "Add a title." };
+  if (!description) return { error: "Write the post before saving." };
+  if (!ALLOWED_CATEGORIES.has(category)) return { error: "Pick a category." };
+  if (featuredImageUrl && !featuredImageUrl.startsWith("https://res.cloudinary.com/")) {
+    return { error: "Upload the cover photo with the photo button." };
   }
+  return { data: { title, description, category, featuredImageUrl, featured, tags: parseTags(formData) }, intent };
+}
 
-  const tags = parseTags(formData);
-  const authorName = user.profile?.name || null;
-  const authorAvatarUrl = user.profile?.avatarUrl || null;
+// Only one post is featured at a time.
+async function clearOtherFeatured(keepId) {
+  const snap = await db.collection("posts").where("featured", "==", true).get();
+  await Promise.all(snap.docs.filter((d) => d.id !== keepId).map((d) => d.ref.update({ featured: false })));
+}
 
-  await createPost({
-    title,
-    description,
-    category,
-    tags,
-    featuredImageUrl,
+function refreshBlog(id) {
+  revalidatePath("/", "layout");
+  if (id) revalidatePath(`/blog/${id}`);
+}
+
+// ** Create **
+export async function createPostAction(prevState, formData) {
+  const { user, error } = await requireAdmin();
+  if (error) return { error };
+  const form = readPostForm(formData);
+  if (form.error) return form;
+
+  const published = form.intent !== "draft";
+  const { id } = await createPost({
+    ...form.data,
+    published,
     authorId: user.uid,
-    authorName,
-    authorAvatarUrl,
-    published: false,
+    authorName: user.profile?.name || user.email,
+    authorRole: user.profile?.title || "GCI",
+    authorAvatarUrl: user.profile?.avatarUrl || null,
   });
-
-  revalidatePath("/dashboard/view-posts");
-  revalidatePath("/blog");
-  redirect("/dashboard/view-posts");
+  if (form.data.featured) await clearOtherFeatured(id);
+  refreshBlog(id);
+  redirect(`/dashboard/view-posts?saved=${published ? "published" : "draft"}`);
 }
 
-// ** Update Post by ID **
-export async function updatePostByIdAction(id, formData) {
-  const { user, error } = await checkAuth();
+// ** Update **
+export async function updatePostByIdAction(id, prevState, formData) {
+  const { error } = await requireAdmin();
   if (error) return { error };
-
   const post = await getPostById(id);
-  if (!post) return { error: "Not found" };
-  if (post.authorId !== user.uid /* || !isAdmin(user) */) {
-    return { error: "Forbidden" };
-  }
+  if (!post) return { error: "That post no longer exists." };
+  const form = readPostForm(formData);
+  if (form.error) return form;
 
-  const title = String(formData.get("title") || "").trim();
-  const description = String(formData.get("description") || "").trim();
+  const patch = { ...form.data, featuredImageUrl: form.data.featuredImageUrl || post.featuredImageUrl || null };
+  if (form.intent === "publish" && !post.published) Object.assign(patch, { published: true, publishedAt: new Date() });
+  if (form.intent === "draft" && post.published) Object.assign(patch, { published: false, publishedAt: null });
 
-  if (!title || !description) {
-    return { error: "Title and description are required" };
-  }
-
-  const featuredImageUrl =
-    String(formData.get("featuredImageUrl") || "").trim() ||
-    post.featuredImageUrl ||
-    null;
-
-  const categoryRaw = String(formData.get("category") || "").trim();
-  const category = ALLOWED_CATEGORIES.has(categoryRaw)
-    ? categoryRaw
-    : post.category || null;
-
-  const tags = parseTags(formData);
-
-  await updatePostById(id, {
-    title,
-    description,
-    category,
-    tags,
-    featuredImageUrl,
-  });
-
-  revalidatePath("/dashboard/view-posts");
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${id}`);
-  redirect(`/dashboard/view-posts`);
+  await updatePostById(id, patch);
+  if (patch.featured) await clearOtherFeatured(id);
+  refreshBlog(id);
+  redirect("/dashboard/view-posts?saved=updated");
 }
 
-// ** Toggle Publish Status by ID **
+// ** Publish / unpublish **
 export async function togglePublishStatusByIdAction(id) {
-  const { user, error } = await checkAuth();
+  const { error } = await requireAdmin();
   if (error) return { error };
-
-  const post = await getPostById(id);
-  if (!post) return { error: "Not found" };
-  if (post.authorId !== user.uid) return { error: "Forbidden" };
-
   const res = await togglePublishStatusById(id);
   if (res?.error) return res;
-
-  revalidatePath("/dashboard/view-posts");
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${id}`);
+  refreshBlog(id);
   return { success: true, published: res.published };
 }
 
-// ** Delete Post by ID **
+// ** Delete **
 export async function deletePostByIdAction(id) {
-  const { user, error } = await checkAuth();
+  const { error } = await requireAdmin();
   if (error) return { error };
-
-  const post = await getPostById(id);
-  if (!post) return { error: "Not found" };
-  if (post.authorId !== user.uid) return { error: "Forbidden" };
-
   const res = await deletePostById(id);
   if (res?.error) return res;
-
-  revalidatePath("/dashboard/view-posts");
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${id}`);
+  refreshBlog(id);
   return { success: true };
 }
 
-// ** Upload to Cloudinary and return URL **
-export async function uploadFeaturedImageAction(file, folder = "posts/tmp") {
-  const { user, error } = await checkAuth();
+// ** Upload a cover photo (Cloudinary) **
+export async function uploadFeaturedImageAction(formData) {
+  const { error } = await requireAdmin();
   if (error) return { error };
-  if (!file) return { error: "File is required" };
-
-  // Image Validation
-  if (!file.type.startsWith("image/"))
-    return { error: "File must be an image" };
-  if (file.size > 5 * 1024 * 1024)
-    return { error: "File must be less than 5MB" };
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  const uploadRes = await new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream(
-        {
-          folder,
-          overwrite: true,
-          transformation: [
-            // reasonable default hero size
-            { width: 1600, height: 900, crop: "fill", gravity: "auto" },
-          ],
-        },
-        (err, res) => (err ? reject(err) : resolve(res))
-      )
-      .end(buffer);
+  return uploadImage(formData.get("file"), {
+    folder: "posts",
+    transformation: [{ width: 1600, height: 900, crop: "fill", gravity: "auto" }],
   });
-
-  return {
-    success: true,
-    url: uploadRes.secure_url,
-    publicId: uploadRes.public_id,
-  };
 }

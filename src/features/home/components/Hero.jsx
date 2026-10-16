@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { JOIN_URL } from "@/constants";
+import Editable from "@/components/edit/Editable";
+import EditablePhoto from "@/components/edit/EditablePhoto";
 import LearnMoreButton from "./LearnMoreButton";
 
 export default function Hero({ c }) {
@@ -7,7 +9,7 @@ export default function Hero({ c }) {
     <section className="hero">
       <div className="wrap">
         <div>
-          <span className="weare">{c["home.hero.weare"]}</span>
+          <Editable k="home.hero.weare" v={c["home.hero.weare"]} className="weare" />
           <h1>
             <span className="w" style={{ "--i": 0 }}>
               Green
@@ -26,7 +28,7 @@ export default function Hero({ c }) {
               </span>
             </span>
           </h1>
-          <p className="lede">{c["home.hero.lede"]}</p>
+          <Editable k="home.hero.lede" v={c["home.hero.lede"]} as="p" className="lede" multiline />
           <div className="ctas">
             <LearnMoreButton />
             <a className="btn btn-gold" href={JOIN_URL} target="_blank" rel="noopener">
@@ -37,9 +39,9 @@ export default function Hero({ c }) {
 
         <div className="collage" aria-label="Photo collage">
           <div className="sun" data-speed="-0.06" aria-hidden="true" />
-          <Sticker n={1} src="/turtle.jpg" alt="Two turtles sunning on a rock beside a pond" caption={c["home.hero.caption1"]} speed="0.03" priority />
-          <Sticker n={2} src="/outdoor.jpg" alt="Tree-lined garden walkway with shaded benches" caption={c["home.hero.caption2"]} speed="-0.04" />
-          <Sticker n={3} src="/pantherflags.jpg" alt="Roary the FIU panther mascot under hanging flags" caption={c["home.hero.caption3"]} speed="0.05" />
+          <Sticker c={c} n={1} alt="Campus photo" speed="0.03" priority />
+          <Sticker c={c} n={2} alt="Campus photo" speed="-0.04" />
+          <Sticker c={c} n={3} alt="Campus photo" speed="0.05" />
           <div className="logo-badge" data-spin aria-hidden="true">
             <Image src="/gci-transparent.webp" alt="" fill sizes="180px" />
           </div>
@@ -49,13 +51,13 @@ export default function Hero({ c }) {
   );
 }
 
-function Sticker({ n, src, alt, caption, speed, priority }) {
+function Sticker({ c, n, alt, speed, priority }) {
   return (
     <figure className={`sticker s${n}`} style={{ "--i": n - 1 }} data-speed={speed}>
       <div className="ph">
-        <Image src={src} alt={alt} fill sizes="(max-width: 860px) 60vw, 30vw" style={{ objectFit: "cover" }} priority={priority} />
+        <EditablePhoto k={`home.hero.photo${n}`} src={c[`home.hero.photo${n}`]} alt={alt} sizes="(max-width: 860px) 60vw, 30vw" priority={priority} />
       </div>
-      <figcaption>{caption}</figcaption>
+      <Editable k={`home.hero.caption${n}`} v={c[`home.hero.caption${n}`]} as="figcaption" />
     </figure>
   );
 }

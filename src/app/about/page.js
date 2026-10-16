@@ -1,5 +1,7 @@
 import Image from "@/components/site/SiteImage";
 import Feature from "@/components/site/Feature";
+import Editable from "@/components/edit/Editable";
+import { ManageLink } from "@/components/edit/AdminBar";
 import JoinBand from "@/components/site/JoinBand";
 import { EmailIcon, LinkedInIcon } from "@/components/site/icons";
 import { getSiteContent } from "@/content/site";
@@ -12,36 +14,20 @@ export default async function AboutPage() {
 
   return (
     <>
-      <Feature
-        label="About"
-        title={c["about.what.title"]}
-        text={c["about.what.text"]}
-        image="/outdoor.jpg"
-        alt="Garden walkway on campus"
-        caption={c["about.what.caption"]}
-      />
-      <Feature
-        dark
-        reverse
-        label="Our message"
-        title={c["about.message.title"]}
-        emphasize="necessary"
-        text={c["about.message.text"]}
-        image="/bamboo.jpeg"
-        alt="Looking up through a bamboo grove"
-        caption={c["about.message.caption"]}
-      />
+      <Feature c={c} prefix="about.what" label="About" alt="Campus photo" />
+      <Feature c={c} prefix="about.message" label="Our message" emphasize="necessary" alt="Campus photo" dark reverse />
 
+      <div className="wrap">
+        <ManageLink href="/dashboard/team">Manage officers in the dashboard</ManageLink>
+      </div>
       {team.length > 0 && (
         <section className="block on-dark" style={{ background: "var(--forest-deep)" }}>
           <div className="wrap">
             <div className="head">
               <h2 data-reveal>
-                {c["about.team.title"]} {team[0].isSample && <span className="draft">sample officers</span>}
+                <Editable k="about.team.title" v={c["about.team.title"]} /> {team[0].isSample && <span className="draft">sample officers</span>}
               </h2>
-              <p data-reveal style={{ "--d": ".1s" }}>
-                {c["about.team.text"]}
-              </p>
+              <Editable k="about.team.text" v={c["about.team.text"]} as="p" multiline data-reveal="" style={{ "--d": ".1s" }} />
             </div>
             <div className="team">
               {team.map((m, i) => (
@@ -54,6 +40,7 @@ export default async function AboutPage() {
 
       <section className="block">
         <div className="wrap">
+          <ManageLink href="/dashboard/faq">Manage the FAQ in the dashboard</ManageLink>
           <div className="head">
             <h2 data-reveal>Frequently asked</h2>
           </div>

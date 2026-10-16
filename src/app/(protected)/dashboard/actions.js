@@ -1,81 +1,42 @@
 "use server";
 
-import { cloudinary } from "@/lib/cloudinary.server";
 import { revalidatePath } from "next/cache";
-import { updateUserProfile } from "@/services/auth.server";
+import { requireUser, updateUserProfile } from "@/services/auth.server";
+import { uploadImage } from "@/lib/cloudinary.server";
 
-// ** Update User Display Name **
-export async function updateName(uid, name) {
-  if (!name || name.trim() === "") {
-    return { success: false, error: "Name is required" };
-  }
-  const result = await updateUserProfile(uid, { name });
-  if (result.success) {
-    revalidatePath("/dashboard");
-  }
-  return result;
+// All profile actions act on the logged-in account only. The uid always comes
+// from the session cookie, never from the browser.
+
+// ** Update name + bio **
+export async function updateProfileAction(prevState, formData) {
+  const { user, error } = await requireUser();
+  if (error) return { error };
+
+  const name = String(formData.get("name") || "").trim().slice(0, 80);
+  const bio = String(formData.get("bio") || "").trim().slice(0, 500);
+  if (!name) return { error: "Add your name." };
+
+  const result = await updateUserProfile(user.uid, { name, bio });
+  if (!result.success) return { error: "Couldn't save. Try again." };
+  revalidatePath("/dashboard", "layout");
+  return { ok: "Profile saved." };
 }
 
-// ** Update Avatar (File Upload) | (Cloudinary) **
-export async function updateAvatar(file, uid) {
-  if (!file || !uid) {
-    return { success: false, error: "File and user ID required" };
-  }
+// ** Update profile photo (Cloudinary) **
+export async function updateAvatarAction(formData) {
+  const { user, error } = await requireUser();
+  if (error) return { error };
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  // Upload to Cloudinary
-  const uploadRes = await new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream(
-        { folder: "avatars", public_id: uid, overwrite: true },
-        (err, res) => (err ? reject(err) : resolve(res))
-      )
-      .end(buffer);
+  const upload = await uploadImage(formData.get("file"), {
+    folder: "avatars",
+    public_id: user.uid,
+    overwrite: true,
+    transformation: [{ width: 400, height: 400, crop: "fill", gravity: "face" }],
   });
+  if (upload.error) return upload;
 
-  // ** Update User Profile with Cloudinary URL **
-  const result = await updateUserProfile(uid, {
-    avatarUrl: uploadRes.secure_url,
-    updatedAt: new Date(),
-  });
-
-  if (result.success) {
-    revalidatePath("/dashboard");
-  }
-
-  return { success: true, url: uploadRes.secure_url };
+  const result = await updateUserProfile(user.uid, { avatarUrl: upload.url });
+  if (!result.success) return { error: "Couldn't save the photo. Try again." };
+  revalidatePath("/dashboard", "layout");
+  return { ok: "Photo updated.", url: upload.url };
 }
-
-// ** Update User Personal Info **
-export async function updatePersonalInfo(uid, formData) {
-  if (!uid) return { success: false, error: "Missing user ID" };
-
-  const name = formData.get("name");
-  const email = formData.get("email");
-  const bio = formData.get("bio");
-
-  const result = await updateUserProfile(uid, {
-    name,
-    email,
-    bio,
-    updatedAt: new Date(),
-  });
-
-  if (result.success) revalidatePath("/dashboard/settings");
-
-  return result;
-}
-
-// ADD TO FIREBASE RULES TO PREVENT ROLE ESCALATION**
-
-// rules_version = '2';
-// service cloud.firestore {
-//   match /databases/{database}/documents {
-//     match /users/{userId} {
-//       allow read: if true; // profiles are public to read
-//       allow update: if request.auth != null && request.auth.uid == userId
-//         && !("role" in request.resource.data); // 🚫 prevent role escalation
-//     }
-//   }
-// }

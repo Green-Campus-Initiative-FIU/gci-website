@@ -1,8 +1,9 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { admin, db, isFirebaseConfigured } from "@/lib/firebase/admin";
 
-// ** Get Current User **
-export async function getCurrentUser() {
+// ** Get Current User ** (memoized per request: the layout, pages and actions all ask)
+export const getCurrentUser = cache(async function getCurrentUser() {
   if (!isFirebaseConfigured) return null;
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session")?.value;
@@ -21,9 +22,26 @@ export async function getCurrentUser() {
       profile: profileData, // data from users collection
     };
   } catch (e) {
-    console.error("getCurrentUser error:", e);
+    if (e?.code !== "auth/session-cookie-expired" && e?.code !== "auth/session-cookie-revoked") {
+      console.error("getCurrentUser error:", e);
+    }
     return null;
   }
+});
+
+export const isAdmin = (user) => user?.profile?.role === "admin";
+
+// ** Guards for server actions ** — return { user } or { error } (never trust a uid from the browser)
+export async function requireUser() {
+  const user = await getCurrentUser();
+  return user ? { user } : { error: "Your session ended. Please log in again." };
+}
+
+export async function requireAdmin() {
+  const user = await getCurrentUser();
+  if (!user) return { error: "Your session ended. Please log in again." };
+  if (!isAdmin(user)) return { error: "Only admins can do this. Ask an admin to give you access." };
+  return { user };
 }
 
 // ** Get User by UID **
@@ -60,10 +78,7 @@ export async function updateUserProfile(uid, data) {
     await db
       .collection("users")
       .doc(uid)
-      .update({
-        ...data,
-        updatedAt: new Date(),
-      });
+      .set({ ...data, updatedAt: new Date() }, { merge: true });
     return { success: true };
   } catch (e) {
     console.error("updateUserProfile error:", e);

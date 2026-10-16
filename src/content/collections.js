@@ -51,3 +51,13 @@ export const getFaq = cache(async () => {
   }
   return FAQ_DEFAULTS;
 });
+
+// Raw items for the dashboard editors (no fallbacks), as plain objects.
+export async function getManagedItems(collection) {
+  if (!db) return [];
+  const order = { team: "order", faq: "order", events: "date" }[collection];
+  const items = await readCollection(collection, order);
+  const plain = items.map(({ updatedBy, active, ...rest }) => rest);
+  if (collection === "committees") plain.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  return plain;
+}

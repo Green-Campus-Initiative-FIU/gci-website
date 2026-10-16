@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { clamp, useScrollFrame } from "./useScrollProgress";
+import Editable from "@/components/edit/Editable";
 
 // Pinned section: Research → Advocate → Implement take turns as you scroll.
 export default function HowWeWork({ c }) {
@@ -15,22 +16,22 @@ export default function HowWeWork({ c }) {
     setStage(Math.min(2, Math.floor(p * 3 * 0.999)));
   });
 
-  const stages = [1, 2, 3].map((n) => ({ title: c[`home.work.${n}.title`], text: c[`home.work.${n}.text`] }));
+  const stages = [1, 2, 3];
 
   return (
     <section className="pin" ref={pinRef}>
       <div className="pin-inner">
         <div className="wrap pin-grid">
           <div>
-            <span className="label">{c["home.work.label"]}</span>
-            <h2>{c["home.work.title"]}</h2>
+            <Editable k="home.work.label" v={c["home.work.label"]} className="label" />
+            <Editable k="home.work.title" v={c["home.work.title"]} as="h2" />
             <ol className="stagelist">
-              {stages.map((s, i) => (
-                <li key={i} className={`stage${i === stage ? " on" : ""}`}>
-                  <span className="n">{i + 1}</span>
+              {stages.map((n, i) => (
+                <li key={n} className={`stage${i === stage ? " on" : ""}`}>
+                  <span className="n">{n}</span>
                   <div>
-                    <h3>{s.title}</h3>
-                    <p>{s.text}</p>
+                    <Editable k={`home.work.${n}.title`} v={c[`home.work.${n}.title`]} as="h3" />
+                    <Editable k={`home.work.${n}.text`} v={c[`home.work.${n}.text`]} as="p" multiline />
                   </div>
                 </li>
               ))}

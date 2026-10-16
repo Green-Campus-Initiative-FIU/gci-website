@@ -1,4 +1,6 @@
 import JoinBand from "@/components/site/JoinBand";
+import Editable from "@/components/edit/Editable";
+import { ManageLink } from "@/components/edit/AdminBar";
 import { social } from "@/constants";
 import { getSiteContent } from "@/content/site";
 import { getEvents } from "@/content/collections";
@@ -16,10 +18,9 @@ export default async function EventsPage() {
             <h1 className="page-title" data-reveal>
               Events {events[0]?.isSample && <span className="draft">sample events</span>}
             </h1>
-            <p data-reveal style={{ "--d": ".1s" }}>
-              {c["events.text"]}
-            </p>
+            <Editable k="events.text" v={c["events.text"]} as="p" data-reveal="" style={{ "--d": ".1s" }} />
           </div>
+          <ManageLink href="/dashboard/events">Manage events in the dashboard</ManageLink>
           {events.length ? (
             <div className="events">
               {events.map((e, i) => {

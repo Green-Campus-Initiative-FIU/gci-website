@@ -1,15 +1,18 @@
-import ReturnToDashboard from "@/features/dashboard/components/ReturnToDashboard";
-import PostForm from "@/features/dashboard/blog/components/PostForm";
+import Link from "next/link";
+import PostEditor from "@/features/dashboard/blog/PostEditor";
+import NoAccess from "@/features/dashboard/NoAccess";
+import { getCurrentUser, isAdmin } from "@/services/auth.server";
 import { createPostAction } from "../actions";
 
-export default function CreateBlogPost() {
+export default async function CreatePostPage() {
+  if (!isAdmin(await getCurrentUser())) return <NoAccess />;
   return (
-    <div className="mx-auto">
-      <ReturnToDashboard />
-      <h2 className="text-dark-green px-4 text-2xl font-black">
-        Create Blog Post
-      </h2>
-      <PostForm action={createPostAction} />
-    </div>
+    <>
+      <Link className="back" href="/dashboard/view-posts">
+        ← All posts
+      </Link>
+      <h1 className="dash-title">Write a post</h1>
+      <PostEditor action={createPostAction} />
+    </>
   );
 }

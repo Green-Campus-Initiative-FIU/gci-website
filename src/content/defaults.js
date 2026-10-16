@@ -8,6 +8,17 @@ export const SITE_DEFAULTS = {
   "home.hero.caption2": "Campus green spaces",
   "home.hero.caption3": "Go Panthers",
 
+  // Photos (an admin can replace any of these from "Edit this page")
+  "home.hero.photo1": "/turtle.jpg",
+  "home.hero.photo2": "/outdoor.jpg",
+  "home.hero.photo3": "/pantherflags.jpg",
+  "home.about.photo": "/outdoor.jpg",
+  "home.involved.events.photo": "/turtle.jpg",
+  "home.involved.committees.photo": "/bamboo.jpeg",
+  "home.involved.blog.photo": "/greenhouse.jpg",
+  "about.what.photo": "/outdoor.jpg",
+  "about.message.photo": "/bamboo.jpeg",
+
   // Home: who we are
   "home.about.label": "Who we are",
   "home.about.title": "Join a community of changemakers",

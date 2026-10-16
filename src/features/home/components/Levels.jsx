@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { clamp, useScrollFrame } from "./useScrollProgress";
+import Editable from "@/components/edit/Editable";
 
 // FIU → Miami-Dade → Florida rings that grow outward as you scroll.
 export default function Levels({ c }) {
@@ -21,15 +22,9 @@ export default function Levels({ c }) {
     <section className="levels">
       <div className="wrap">
         <div className="copy">
-          <span className="label" data-reveal>
-            {c["home.levels.label"]}
-          </span>
-          <h2 data-reveal style={{ "--d": ".08s" }}>
-            {c["home.levels.title"]}
-          </h2>
-          <p data-reveal style={{ "--d": ".16s" }}>
-            {c["home.levels.text"]}
-          </p>
+          <Editable k="home.levels.label" v={c["home.levels.label"]} className="label" data-reveal="" />
+          <Editable k="home.levels.title" v={c["home.levels.title"]} as="h2" data-reveal="" style={{ "--d": ".08s" }} />
+          <Editable k="home.levels.text" v={c["home.levels.text"]} as="p" multiline data-reveal="" style={{ "--d": ".16s" }} />
         </div>
         <div className="rings" ref={ringsRef} role="img" aria-label="FIU inside Miami-Dade County inside Florida">
           <div className="lvl-ring r3" data-ring="3">

@@ -1,5 +1,6 @@
 import { JOIN_URL, social } from "@/constants";
 import { getSiteContent } from "@/content/site";
+import Editable from "@/components/edit/Editable";
 
 export default async function JoinBand() {
   const c = await getSiteContent();
@@ -16,9 +17,7 @@ export default async function JoinBand() {
           <h2 data-reveal>
             Join the <span>green</span> team
           </h2>
-          <p data-reveal style={{ "--d": ".1s" }}>
-            {c["join.text"]}
-          </p>
+          <Editable k="join.text" v={c["join.text"]} as="p" multiline data-reveal="" style={{ "--d": ".1s" }} />
           <div className="ctas" data-reveal style={{ "--d": ".2s" }}>
             <a className="btn btn-gold" href={JOIN_URL} target="_blank" rel="noopener">
               Join GCI
@@ -31,15 +30,15 @@ export default async function JoinBand() {
         <div className="meet" data-reveal="right">
           <div>
             <span className="label">Next general meeting</span>
-            <b>{c["join.meeting.when"]}</b>
+            <Editable k="join.meeting.when" v={c["join.meeting.when"]} as="b" />
           </div>
           <div>
             <span className="label">Where</span>
-            <b>{c["join.meeting.where"]}</b>
+            <Editable k="join.meeting.where" v={c["join.meeting.where"]} as="b" />
           </div>
           <div>
             <span className="label">Bring</span>
-            <b>{c["join.meeting.bring"]}</b>
+            <Editable k="join.meeting.bring" v={c["join.meeting.bring"]} as="b" />
           </div>
         </div>
       </div>

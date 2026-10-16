@@ -1,6 +1,8 @@
 import Image from "@/components/site/SiteImage";
 import Link from "next/link";
 import JoinBand from "@/components/site/JoinBand";
+import Editable from "@/components/edit/Editable";
+import { ManageLink } from "@/components/edit/AdminBar";
 import PostCard from "@/features/blog/components/PostCard";
 import { getSiteContent } from "@/content/site";
 import { getPublicPosts } from "@/services/posts.server";
@@ -26,10 +28,9 @@ export default async function BlogPage({ searchParams }) {
             <h1 className="page-title" data-reveal>
               Blog {isSample && <span className="draft">sample posts</span>}
             </h1>
-            <p data-reveal style={{ "--d": ".1s" }}>
-              {c["blog.text"]}
-            </p>
+            <Editable k="blog.text" v={c["blog.text"]} as="p" data-reveal="" style={{ "--d": ".1s" }} />
           </div>
+          <ManageLink href="/dashboard/view-posts">Manage posts in the dashboard</ManageLink>
           {main ? (
             <div className="featured">
               <FeaturedMain post={main} />

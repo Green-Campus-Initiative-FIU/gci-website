@@ -1,12 +1,4 @@
-import { getCurrentUser } from "@/services/auth.server";
 import { toMillis } from "./date";
-
-// ** Check if user is authenticated and return user object **
-export async function checkAuth() {
-  const user = await getCurrentUser();
-  if (!user) return { error: "Not authenticated", user: null };
-  return { user: user };
-}
 
 // ** Sanitize user data for client-side use **
 export function sanitizeUserData(user) {
@@ -20,6 +12,7 @@ export function sanitizeUserData(user) {
       role: profile.role ?? null,
       name: profile.name ?? null,
       avatarUrl: profile.avatarUrl ?? null,
+      bio: profile.bio ?? "",
       createdAt: toMillis(profile.createdAt),
       updatedAt: toMillis(profile.updatedAt),
     },

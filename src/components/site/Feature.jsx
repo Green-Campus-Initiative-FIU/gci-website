@@ -1,23 +1,27 @@
-import Image from "next/image";
-import { Emphasize } from "@/components/site/Emphasize";
+import Editable from "@/components/edit/Editable";
+import EditablePhoto from "@/components/edit/EditablePhoto";
 
 // Headline + paragraph beside a taped photo. Used on Home and About.
-export default function Feature({ label, title, emphasize, text, image, alt, caption, dark = false, reverse = false, children, id }) {
+// Text and photo come from the site content under `prefix` (e.g. "home.about"),
+// so admins can edit them in place.
+export default function Feature({ c, prefix, label, emphasize, alt, dark = false, reverse = false, children, id }) {
+  const key = (s) => `${prefix}.${s}`;
+  const labelKey = c[key("label")] !== undefined ? key("label") : null;
   return (
     <section className={`feature${dark ? " on-dark" : ""}${reverse ? " rev" : ""}`} id={id}>
       <div className="wrap">
         <div className="copy">
-          {label && (
-            <span className="label" data-reveal>
-              {label}
-            </span>
+          {labelKey ? (
+            <Editable k={labelKey} v={c[labelKey]} className="label" data-reveal="" />
+          ) : (
+            label && (
+              <span className="label" data-reveal>
+                {label}
+              </span>
+            )
           )}
-          <h2 data-reveal style={{ "--d": ".08s" }}>
-            <Emphasize text={title} word={emphasize} />
-          </h2>
-          <p data-reveal style={{ "--d": ".16s" }}>
-            {text}
-          </p>
+          <Editable k={key("title")} v={c[key("title")]} as="h2" emphasize={emphasize} data-reveal="" style={{ "--d": ".08s" }} />
+          <Editable k={key("text")} v={c[key("text")]} as="p" multiline data-reveal="" style={{ "--d": ".16s" }} />
           {children && (
             <div data-reveal style={{ "--d": ".24s" }}>
               {children}
@@ -27,9 +31,9 @@ export default function Feature({ label, title, emphasize, text, image, alt, cap
         <div className="media" data-reveal={reverse ? "left" : "right"}>
           <figure className={`photo ${reverse ? "tilt-l" : "tilt-r"}`} data-speed={reverse ? "0.04" : "-0.04"}>
             <div className="ph">
-              <Image src={image} alt={alt} fill sizes="(max-width: 820px) 100vw, 50vw" style={{ objectFit: "cover" }} />
+              <EditablePhoto k={key("photo")} src={c[key("photo")]} alt={alt} sizes="(max-width: 820px) 100vw, 50vw" />
             </div>
-            {caption && <figcaption>{caption}</figcaption>}
+            <Editable k={key("caption")} v={c[key("caption")]} as="figcaption" />
           </figure>
         </div>
       </div>
