@@ -81,6 +81,15 @@ There's always at least one admin: the site won't let you remove or demote the l
 
 ## Access & ownership
 
+| What | Where | Owned by |
+| --- | --- | --- |
+| Live site | https://gci-website-eta.vercel.app | Vercel project (updates automatically on every push to `main`) |
+| Code | https://github.com/Green-Campus-Inititative-FIU/gci-website (public) | GCI GitHub organization |
+| Database + logins | Firebase project `gci-website` | Club Google account |
+| Photos | Cloudinary | Club account |
+
+The code is public on purpose: no keys or passwords live in it. **Never commit keys.** They go in `.env.local` (ignored by git) and in Vercel → Settings → Environment Variables.
+
 To avoid losing access when officers graduate, make sure **at least two current officers** are owners on each of:
 
 - GitHub organization
